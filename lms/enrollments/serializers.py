@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import serializers
 from enrollments.models import Enrollment, EnrollmentStatus
 from courses.models import CourseStatus
@@ -15,3 +16,11 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         if value.status == CourseStatus.ARCHIVED:
             raise serializers.ValidationError('Невозможно записаться на заархивированный курс')
         return value
+
+    def create(self, validated_data):
+        try:
+            return super().create(validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError(
+                {'course': 'Студент уже записан на этот курс.'}
+            )
