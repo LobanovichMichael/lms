@@ -1,9 +1,9 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
-from courses.models import Course
+from courses.models import Course, CourseStatus
 from courses.serializers import CourseSerializer
 from enrollments.models import Enrollment, EnrollmentStatus
 
@@ -30,3 +30,15 @@ class CourseViewSet(viewsets.ModelViewSet):
                 )
         serializer.save()
         return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if instance.status == CourseStatus.ARCHIVED:
+            raise ValidationError({'course': 'Невозможно повторно удалить курс'})
+
+        if Enrollment.objects.filter(course=instance,status=EnrollmentStatus.ACTIVE,).exists():
+            raise ValidationError({'course': 'Невозможно удалить курс, на котором есть активные записи.'})
+        instance.status = CourseStatus.ARCHIVED
+        instance.save(update_fields=['status'])
+        return Response(status=status.HTTP_204_NO_CONTENT)
