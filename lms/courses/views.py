@@ -1,9 +1,11 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
+from courses.filters import CourseFilter
 from courses.models import Course, CourseStatus
 from courses.serializers import CourseSerializer
 from enrollments.models import Enrollment, EnrollmentStatus
@@ -17,7 +19,8 @@ class CourseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminUser]
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     search_fields = ['name']
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = CourseFilter
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
