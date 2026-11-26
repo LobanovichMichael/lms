@@ -1,18 +1,10 @@
 from django.contrib import admin
 from django.urls import include, path
-from drf_spectacular.views import (SpectacularAPIView,SpectacularSwaggerView,SpectacularRedocView,)
-from rest_framework.routers import DefaultRouter
+from drf_spectacular.views import (SpectacularAPIView,SpectacularSwaggerView,)
 
-from enrollments.views import EnrollmentViewSet
+from courses.urls import courses_router
+from enrollments.urls import enrollments_router
 from students.urls import students_router
-from courses.views import CourseViewSet
-
-
-courses_router = DefaultRouter()
-courses_router.register('courses', CourseViewSet, basename='course')
-
-enrollments_router = DefaultRouter()
-enrollments_router.register('enrollments', EnrollmentViewSet, basename='enrollment')
 
 
 urlpatterns = [

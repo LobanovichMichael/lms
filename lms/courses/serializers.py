@@ -24,3 +24,9 @@ class CourseSerializer(serializers.ModelSerializer):
         if value and value > timezone.localdate():
             raise serializers.ValidationError('Дата изменения не может быть в будущем.')
         return value
+
+
+class CourseShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ('id', 'name', 'description', 'price', 'status')

@@ -45,3 +45,8 @@ class StudentSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+class StudentShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ('id', 'username', 'first_name', 'last_name', 'email')

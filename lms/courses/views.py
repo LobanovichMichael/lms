@@ -1,4 +1,5 @@
 from rest_framework import viewsets, filters, status
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -6,6 +7,7 @@ from rest_framework.response import Response
 from courses.models import Course, CourseStatus
 from courses.serializers import CourseSerializer
 from enrollments.models import Enrollment, EnrollmentStatus
+from students.serializers import StudentShortSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -42,3 +44,10 @@ class CourseViewSet(viewsets.ModelViewSet):
         instance.status = CourseStatus.ARCHIVED
         instance.save(update_fields=['status'])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['get'])
+    def students(self, request, pk=None):
+        course = self.get_object()
+        enrollments = Enrollment.objects.filter(course=course,status=EnrollmentStatus.ACTIVE,).select_related('student')
+        students = [enr.student for enr in enrollments]
+        return Response(StudentShortSerializer(students, many=True).data)
